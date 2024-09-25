@@ -27,6 +27,7 @@ class User(AbstractBaseUser):
         ('technician', 'Technician'),
     ]
     email = models.EmailField(unique=True, max_length=150)
+    user = models.CharField(max_length=100)
     no_empleado = models.CharField(max_length=10)
     nombre = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)
@@ -108,6 +109,7 @@ class producto_maquina(models.Model):
     Cadence_theo = models.CharField(max_length=100)
     Utillaje = models.CharField(max_length=100)
     Eficiencia = models.CharField(max_length=100)
+    
     
     def __str__(self):
         return self.Ruta

@@ -27,8 +27,8 @@ class User(AbstractBaseUser):
         ('technician', 'Technician'),
     ]
     email = models.EmailField(unique=True, max_length=150)
-    user = models.CharField(max_length=100)
-    no_empleado = models.CharField(max_length=10)
+    username = models.CharField(max_length=100)
+    no_empleado = models.CharField(max_length=10, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)
     apellido_materno = models.CharField(max_length=100)

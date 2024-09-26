@@ -16,9 +16,17 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(generics.GenericAPIView):
     def post(self, request):
         email = request.data.get('email')
+        username = request.data.get('username')
         password = request.data.get('password')
         print(f"Email: {email}, Password: {password}")
-        user = authenticate(request, email=email, password=password)
+        
+        user = None
+        if email:
+            user = authenticate(request, email=email, password=password)
+        elif username:
+            user = authenticate(request, username=username, password=password)
+
+
         if user is None:
             return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -27,5 +35,6 @@ class LoginView(generics.GenericAPIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'user': UserSerializer(user).data
             })
         return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)

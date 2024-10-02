@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from django.contrib.auth import authenticate
-from .models import User
+from .models import User , producto_maquina
 from .serializers import UserSerializer
 
 
@@ -38,3 +38,4 @@ class LoginView(generics.GenericAPIView):
                 'user': UserSerializer(user).data
             })
         return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+

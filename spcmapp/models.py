@@ -81,17 +81,19 @@ class Maquina(models.Model):
         return self.codigo
     
 class Producto(models.Model):
-    nombre = models.CharField(max_length=100)
-    codigo = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    
+    producto = models.CharField(max_length=100)
     descripcion = models.TextField(max_length=150)
-    categoria = models.CharField(max_length=100)
+    codigo_cliente = models.CharField(max_length=100)
     resina_1 = models.CharField(max_length=100)
-    resina_2 = models.CharField(max_length=100)
+    categoria = models.CharField(max_length=100)
     estado = models.BooleanField(default=True)
-    Maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE)
+    
+    resina_2 = models.CharField(max_length=100, null=True, blank=True)
+    Maquina = models.CharField(max_length=100, null=True, blank=True)
     
     def __str__(self):
-        return self.nombre
+        return self.producto
 
 class producto_maquina(models.Model):
     Ruta = models.CharField(max_length=100)

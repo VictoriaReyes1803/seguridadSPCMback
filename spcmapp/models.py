@@ -73,9 +73,8 @@ class Cliente(models.Model):
         return self.codigo
     
 class Maquina(models.Model):
-    nombre = models.CharField(max_length=100)
-    codigo = models.CharField(max_length=10)
-    estado = models.BooleanField(default=True)
+    maquina = models.CharField(max_length=100)
+    estado = models.BooleanField(default=True, null=True, blank=True)
     
     def __str__(self):
         return self.codigo

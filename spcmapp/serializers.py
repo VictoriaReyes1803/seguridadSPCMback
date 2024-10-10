@@ -3,12 +3,12 @@
 from rest_framework import serializers
 
 from django.contrib.auth.hashers import make_password
-from .models import User, producto_maquina, Producto
+from .models import User, producto_maquina, Producto, Maquina
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'nombre', 'username','no_empleado','apellido_paterno','apellido_materno', 'rol', 'password', 'is_active', 'is_staff']
+        fields = ['id','email', 'nombre', 'username','no_empleado','apellido_paterno','apellido_materno', 'rol', 'password', 'is_active', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -19,3 +19,16 @@ class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto  
         fields = ['id', 'producto', 'descripcion', 'codigo_cliente', 'resina_1', 'categoria', 'estado']
+        
+class MaquinaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maquina
+        fields = ['id', 'maquina', 'estado']
+        
+        
+class ProductoMaquinaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = producto_maquina
+        fields = ['id', 'Ruta', 'Descripcion_1', 'Categoria', 'Operación', 'Subcontratacion', 'Centro_trabajo_ppal', 'Destino_ope', 'Cod_maquina',
+                  'Tipo_tpo_operacional', 'Tiempo_ajuste', 'Tpo_operacional', 'Cadencia',
+                  'Cadence_theo', 'Utillaje', 'Eficiencia']

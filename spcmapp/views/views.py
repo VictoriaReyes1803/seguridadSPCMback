@@ -4,8 +4,8 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import generics
-from .models import  Producto, producto_maquina, Maquina
-from .serializers import  ProductoSerializer, MaquinaSerializer, ProductoMaquinaSerializer
+from ..models import  Producto, Producto_maquina, Maquina, Reporte
+from ..serializers import  ProductoSerializer, MaquinaSerializer, ProductoMaquinaSerializer, ReporteSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -28,7 +28,7 @@ class ProductoMaquina(LoginRequiredMixin, generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, producto , *args, **kwargs):
-        producto_maquina_obj = get_object_or_404(producto_maquina, Ruta=producto)
+        producto_maquina_obj = get_object_or_404(Producto_maquina, Ruta=producto)
 
         if producto_maquina_obj:
             serializer = ProductoMaquinaSerializer(producto_maquina_obj)
@@ -45,3 +45,30 @@ class Maquinaget(generics.ListAPIView):
         maquinas = self.get_queryset()
         serializer = self.get_serializer(maquinas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class ReporteView(generics.ListCreateAPIView):
+    queryset = Reporte.objects.all()
+    serializer_class = ReporteSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Reporte.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+    
+        serializer.save(user=self.request.user)
+    
+    def create(self,  request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+class ReporteDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Reporte.objects.all()
+    serializer_class = ReporteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Reporte.objects.filter(user=self.request.user)
+    

@@ -50,6 +50,8 @@ class Reporte(models.Model):
     ruta = models.CharField(max_length=150)
     content = models.JSONField()  
     fecha = models.DateTimeField(auto_now_add=True)
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    producto_maquina = models.ForeignKey('Producto_maquina', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Reporte {self.id} de {self.user.email}"
@@ -92,7 +94,7 @@ class Producto(models.Model):
     def __str__(self):
         return self.producto
 
-class producto_maquina(models.Model):
+class Producto_maquina(models.Model):
     Ruta = models.CharField(max_length=100)
     Descripcion_1 = models.CharField(max_length=100)
     Categoria = models.CharField(max_length=100)

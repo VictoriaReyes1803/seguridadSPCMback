@@ -8,8 +8,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
-from .models import User , producto_maquina, Producto
-from .serializers import UserSerializer, ProductoSerializer
+from ..models import User , Producto_maquina, Producto
+from ..serializers import UserSerializer, ProductoSerializer
 
 
 

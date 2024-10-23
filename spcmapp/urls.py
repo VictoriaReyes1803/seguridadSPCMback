@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views.views import Productos, ProductoMaquina, Maquinaget, ReporteView, ReporteDetailView
+from .views.views import Productos, ProductoMaquina, Maquinaget, ReporteView, ReporteDetailView, UploadPDFView, ListPDFView
 from .views.auth_views import RegisterView, LoginView, LogoutView
 from .views.user_views import user_views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -16,6 +16,9 @@ urlpatterns = [
     path('maquinas/', Maquinaget.as_view(), name='maquina-list'),
     path('reportes/', ReporteView.as_view(), name='reportes'),
     path('reportes/<int:pk>/', ReporteDetailView.as_view(), name='reporte-detail'),
+    path('pdf/', UploadPDFView.as_view(), name='pdf'),
+    path('pdfs/', ListPDFView.as_view(), name='pdfs'),
+   
     
     path('users/', user_views.get_users, name='get_users'),
     path('users/<int:user_id>/', user_views.get_user, name='get_user'),

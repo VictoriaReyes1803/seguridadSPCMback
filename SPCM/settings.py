@@ -162,3 +162,24 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'spcmapp.User'
+
+
+# settings.py
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_ACCESS_KEY_ID = 'DO00H69G2ZGQJC6LBUUN'
+AWS_SECRET_ACCESS_KEY = 'rHtA3ByDGGBCH3t27LzbkGwrl4wWHZGUYK+cPD1d8z0'
+AWS_STORAGE_BUCKET_NAME = 'clayenss'
+AWS_S3_ENDPOINT_URL = 'https://clayenss.nyc3.digitaloceanspaces.com'
+AWS_S3_REGION_NAME = 'nyc3'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'media'
+
+SPACES_REGION = 'nyc3'
+SPACES_ENDPOINT_URL = 'https://clayenss.nyc3.digitaloceanspaces.com'
+SPACES_ACCESS_KEY_ID = 'DO00H69G2ZGQJC6LBUUN'
+SPACES_SECRET_ACCESS_KEY = 'rHtA3ByDGGBCH3t27LzbkGwrl4wWHZGUYK+cPD1d8z0'
+SPACES_BUCKET_NAME = 'clayenss'

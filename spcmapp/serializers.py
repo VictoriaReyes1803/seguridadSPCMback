@@ -34,6 +34,8 @@ class ProductoMaquinaSerializer(serializers.ModelSerializer):
                   'Cadence_theo', 'Utillaje', 'Eficiencia']
         
 class ReporteSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True) 
+    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
     class Meta:
         model = Reporte
         fields = ['id','user','producto', 'producto_maquina','ruta', 'content','fecha','formato']

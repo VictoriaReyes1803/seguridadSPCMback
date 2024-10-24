@@ -59,7 +59,7 @@ class Maquinaget(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class ReporteView(generics.ListCreateAPIView):
-    # view de reportes get por usuario logueado
+    # view de post de reportes
     queryset = Reporte.objects.all()
     serializer_class = ReporteSerializer
     permission_classes = [IsAuthenticated]
@@ -107,8 +107,12 @@ class UploadPDFView(generics.ListCreateAPIView):
                                         aws_access_key_id=settings.SPACES_ACCESS_KEY_ID,
                                         aws_secret_access_key=settings.SPACES_SECRET_ACCESS_KEY)
                 
-                client.upload_fileobj(BytesIO(file_content), settings.SPACES_BUCKET_NAME, file_name)
-                file_url = f"{settings.SPACES_ENDPOINT_URL}/{file_name}"
+                client.upload_fileobj(BytesIO(file_content), settings.SPACES_BUCKET_NAME, file_name, ExtraArgs={
+                    'ContentType': 'application/pdf',
+                    'ContentDisposition': 'inline',
+                    'ACL': 'public-read'  # Esto asegura que el archivo sea público
+                })
+                file_url = f"https://nyc3.digitaloceanspaces.com/clayenss/{settings.SPACES_BUCKET_NAME}/{file_name}"
                 print(file_url)
 
                 return Response( {'file_url': file_url}

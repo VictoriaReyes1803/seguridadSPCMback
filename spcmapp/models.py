@@ -49,6 +49,7 @@ class Reporte(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ruta = models.CharField(max_length=150)
     content = models.JSONField()  
+    formato = models.CharField(max_length=100)
     fecha = models.DateTimeField(auto_now_add=True)
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     producto_maquina = models.ForeignKey('Producto_maquina', on_delete=models.CASCADE)

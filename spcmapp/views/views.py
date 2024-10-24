@@ -1,4 +1,5 @@
 
+from io import BytesIO
 import logging
 import os
 import boto3
@@ -58,6 +59,7 @@ class Maquinaget(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class ReporteView(generics.ListCreateAPIView):
+    # view de reportes get por usuario logueado
     queryset = Reporte.objects.all()
     serializer_class = ReporteSerializer
     permission_classes = [IsAuthenticated]
@@ -66,7 +68,6 @@ class ReporteView(generics.ListCreateAPIView):
         return Reporte.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
-    
         serializer.save(user=self.request.user)
     
     def create(self,  request, *args, **kwargs):
@@ -74,8 +75,15 @@ class ReporteView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+  
     
+class AllReportsView(generics.ListAPIView):
+    queryset = Reporte.objects.all()
+    serializer_class = ReporteSerializer
+    permission_classes = [IsAuthenticated]
+
 class ReporteDetailView(generics.RetrieveUpdateDestroyAPIView):
+      # view de reportes get por usuario ID
     queryset = Reporte.objects.all()
     serializer_class = ReporteSerializer
     permission_classes = [IsAuthenticated]
@@ -84,35 +92,35 @@ class ReporteDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Reporte.objects.filter(user=self.request.user)
     
 
-class UploadPDFView(APIView):
-    def post(self, request, *args, **kwargs):
-        uploaded_file = request.FILES.get('file')
+class UploadPDFView(generics.ListCreateAPIView):
+        def post(self, request, *args, **kwargs):
+            uploaded_file = request.FILES.get('file')
+            if not uploaded_file:
+                return Response({'error': 'No file provided'}, status=400)
+            try:
+                file_name = uploaded_file.name
+                file_content = uploaded_file.read()
+                session = boto3.session.Session()
+                client = session.client('s3',
+                                        region_name=settings.SPACES_REGION,
+                                        endpoint_url=settings.SPACES_ENDPOINT_URL,
+                                        aws_access_key_id=settings.SPACES_ACCESS_KEY_ID,
+                                        aws_secret_access_key=settings.SPACES_SECRET_ACCESS_KEY)
+                
+                client.upload_fileobj(BytesIO(file_content), settings.SPACES_BUCKET_NAME, file_name)
+                file_url = f"{settings.SPACES_ENDPOINT_URL}/{file_name}"
+                print(file_url)
 
-        if not uploaded_file:
-            return Response({'error': 'No file provided'}, status=400)
-        try:
-            file_name = uploaded_file.name
-
-            session = boto3.session.Session()
-            client = session.client('s3',
-                                    region_name=settings.SPACES_REGION,
-                                    endpoint_url=settings.SPACES_ENDPOINT_URL,
-                                    aws_access_key_id=settings.SPACES_ACCESS_KEY_ID,
-                                    aws_secret_access_key=settings.SPACES_SECRET_ACCESS_KEY)
-
-            client.upload_fileobj(uploaded_file, settings.SPACES_BUCKET_NAME, file_name)
-
-            file_url = f"{settings.SPACES_ENDPOINT_URL}/{settings.SPACES_BUCKET_NAME}/{file_name}"
-            print(file_url)
-            return Response({'file_url': file_url}, status=status.HTTP_201_CREATED)
-
-        except NoCredentialsError:
-            return Response({'error': 'Credentials not available'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+                return Response( {'file_url': file_url}
+                    , status=status.HTTP_201_CREATED)
+            
+            except NoCredentialsError:
+                return Response({'error': 'Credentials not available'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ListPDFView(APIView):
+    #get de los pdf en digital
     def get(self, request, *args, **kwargs):
         try:
             session = boto3.session.Session()

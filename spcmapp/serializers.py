@@ -36,5 +36,5 @@ class ProductoMaquinaSerializer(serializers.ModelSerializer):
 class ReporteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reporte
-        fields = ['id','user','producto', 'producto_maquina','ruta', 'content','fecha']
+        fields = ['id','user','producto', 'producto_maquina','ruta', 'content','fecha','formato']
         read_only_fields = ['fecha', 'user']

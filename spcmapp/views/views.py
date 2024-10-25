@@ -110,7 +110,7 @@ class UploadPDFView(generics.ListCreateAPIView):
                 client.upload_fileobj(BytesIO(file_content), settings.SPACES_BUCKET_NAME, file_name, ExtraArgs={
                     'ContentType': 'application/pdf',
                     'ContentDisposition': 'inline',
-                    'ACL': 'public-read'  # Esto asegura que el archivo sea público
+                    'ACL': 'public-read'  
                 })
                 file_url = f"https://nyc3.digitaloceanspaces.com/clayenss/{settings.SPACES_BUCKET_NAME}/{file_name}"
                 print(file_url)

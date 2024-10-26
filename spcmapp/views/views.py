@@ -4,6 +4,7 @@ import logging
 import os
 import boto3
 from django.shortcuts import get_object_or_404, render
+import requests
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -59,7 +60,7 @@ class Maquinaget(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class ReporteView(generics.ListCreateAPIView):
-    # view de post de reportes
+    # view de post de reportes y get por usuario logueado
     queryset = Reporte.objects.all()
     serializer_class = ReporteSerializer
     permission_classes = [IsAuthenticated]
@@ -75,9 +76,9 @@ class ReporteView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-  
     
-class AllReportsView(generics.ListAPIView):
+    
+class AllReportsView(generics.ListAPIView): #todos los reportes
     queryset = Reporte.objects.all()
     serializer_class = ReporteSerializer
     permission_classes = [IsAuthenticated]
@@ -156,5 +157,60 @@ class ListPDFView(APIView):
         
         except (NoCredentialsError, PartialCredentialsError):
             return Response({'error': 'Credentials not available or incomplete'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class UpdatePDFView(generics.GenericAPIView):
+    def put(self, request, *args, **kwargs):
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response({'error': 'No file provided'}, status=400)
+        try:
+            file_name = uploaded_file.name
+            file_content = uploaded_file.read()
+            session = boto3.session.Session()
+            client = session.client('s3',
+                                    region_name=settings.SPACES_REGION,
+                                    endpoint_url=settings.SPACES_ENDPOINT_URL,
+                                    aws_access_key_id=settings.SPACES_ACCESS_KEY_ID,
+                                    aws_secret_access_key=settings.SPACES_SECRET_ACCESS_KEY)
+
+            try:
+                client.delete_object(Bucket=settings.SPACES_BUCKET_NAME, Key=file_name)
+            except client.exceptions.NoSuchKey:
+                return Response({'error': 'PDF not found'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            client.upload_fileobj(BytesIO(file_content), settings.SPACES_BUCKET_NAME, file_name, ExtraArgs={
+                'ContentType': 'application/pdf',
+                'ContentDisposition': 'inline',
+                'ACL': 'public-read'
+            })
+            
+            file_url = f"https://nyc3.digitaloceanspaces.com/clayenss/{settings.SPACES_BUCKET_NAME}/{file_name}"
+            print(file_url)
+            
+            
+            # API_TOKEN = settings.DIGITALOCEAN_API_TOKEN
+            # CDN_ENDPOINT_ID = settings.SPACES_REGION
+            # FILE_PATH = f'/{settings.SPACES_BUCKET_NAME}/{file_name}'
+            # headers = {
+            #     'Content-Type': 'application/json',
+            #     'Authorization': f'Bearer {API_TOKEN}'
+            # }
+            # data = {
+            #     'files': [FILE_PATH]
+            # }
+            # response = requests.delete(
+            #     f'https://api.digitalocean.com/v2/cdn/endpoints/{CDN_ENDPOINT_ID}/cache',
+            #     headers=headers,
+            #     json=data
+            # )
+            # print(response.status_code, response.json())
+
+            return Response({'file_url': file_url}, status=status.HTTP_200_OK)
+        
+        except NoCredentialsError:
+            return Response({'error': 'Credentials not available'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

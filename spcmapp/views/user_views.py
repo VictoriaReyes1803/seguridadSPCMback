@@ -38,10 +38,11 @@ class user_views:
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = UserSerializer(user, data=request.data)
+        serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @api_view(['DELETE'])
@@ -51,7 +52,6 @@ class user_views:
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Cambia is_active a False en lugar de eliminar el registro
         user.is_active = False
         user.save()
         return Response({"message": "User deactivated successfully"}, status=status.HTTP_200_OK)

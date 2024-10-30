@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'spcmapp',
     'corsheaders',
-    'storages'
+    'storages',
+    
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'spcmapp.middleware.JWTAuthenticationMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
 ROOT_URLCONF = 'SPCM.urls'
@@ -183,3 +186,12 @@ SPACES_ENDPOINT_URL = 'https://clayenss.nyc3.digitaloceanspaces.com'
 SPACES_ACCESS_KEY_ID = 'DO00H69G2ZGQJC6LBUUN'
 SPACES_SECRET_ACCESS_KEY = 'rHtA3ByDGGBCH3t27LzbkGwrl4wWHZGUYK+cPD1d8z0'
 SPACES_BUCKET_NAME = 'clayenss'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'          # Servidor SMTP de Gmail (o el de tu proveedor)
+EMAIL_PORT = 587                       # Puerto para TLS
+EMAIL_USE_TLS = True                   # Habilitar TLS
+EMAIL_HOST_USER = 'reyedvictoria1803@gmail.com' # Tu correo electrónico
+EMAIL_HOST_PASSWORD = 'fykf deom hrrn kfzz'   # Contraseña del correo electrónico
+DEFAULT_FROM_EMAIL = 'reyedvictoria1803@gmail.com'  # Dirección del remitente

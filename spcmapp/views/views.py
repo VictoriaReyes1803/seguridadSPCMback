@@ -89,8 +89,10 @@ class ReporteDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReporteSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return Reporte.objects.filter(user=self.request.user)
+    def get_object(self):
+        # Obtiene el objeto Reporte según el ID pasado en la URL
+        reporte_id = self.kwargs.get('pk')
+        return Reporte.objects.get(id=reporte_id)
     
 
 class UploadPDFView(generics.ListCreateAPIView):

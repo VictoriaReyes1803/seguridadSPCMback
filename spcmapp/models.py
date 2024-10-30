@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+import jwt
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -33,7 +38,8 @@ class User(AbstractBaseUser):
     rol = models.CharField(max_length=10, choices=roles)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-
+    code = models.CharField(max_length=100, null=True, blank=True)
+    reset_token = models.CharField(max_length=100, null=True, blank=True)
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -41,6 +47,23 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email + " - " + self.rol
+    
+    def generate_reset_token(self):
+        """Genera un token JWT para restablecimiento de contraseña."""
+        expiration = timezone.now() + timedelta(minutes=30)  
+        token = jwt.encode({
+            'user_id': self.id,
+            'exp': int(expiration.timestamp())
+        }, settings.SECRET_KEY, algorithm='HS256')
+        return token
+
+    def verify_reset_token(self, token):
+        """Verifica la validez del token JWT para restablecimiento de contraseña."""
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            return payload['user_id'] == self.id  # Verifica que el token pertenece al usuario
+        except (jwt.ExpiredSignatureError, jwt.DecodeError, jwt.InvalidTokenError):
+            return False
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
@@ -53,6 +76,7 @@ class Reporte(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     producto_maquina = models.ForeignKey('Producto_maquina', on_delete=models.CASCADE)
+    
 
     def __str__(self):
         return f"Reporte {self.id} de {self.user.email}"

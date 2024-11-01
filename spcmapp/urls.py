@@ -1,13 +1,14 @@
 from django.urls import path
 
-from .views.views import Productos, ProductoMaquina, Maquinaget, ReporteView, ReporteDetailView, UploadPDFView, ListPDFView, AllReportsView, UpdatePDFView
-from .views.auth_views import RegisterView, LoginView, LogoutView, SendRecoveryEmailView, ResetPasswordView, reset_password_view
+from .views.views import Productos, ProductoMaquina, Maquinaget, ReporteView, ReporteDetailView, UploadPDFView, ListPDFView, AllReportsView, UpdatePDFView, DeletePDFView
+from .views.auth_views import RegisterView, LoginView, UserProfileView ,LogoutView, SendRecoveryEmailView, ResetPasswordView, reset_password_view
 from .views.user_views import user_views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('users/me/', UserProfileView.as_view(), name='user-profile'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -21,6 +22,7 @@ urlpatterns = [
     path('pdf/', UploadPDFView.as_view(), name='pdf'),# pdf en digital
     path('pdfs/', ListPDFView.as_view(), name='pdfs'),
     path('update/', UpdatePDFView.as_view(), name='update-pdf'),
+    path('pdf/delete/<int:id_report>/', DeletePDFView.as_view(), name='delete-pdf'),
     
     
     path('users/', user_views.get_users, name='get_users'),

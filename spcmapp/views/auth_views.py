@@ -1,4 +1,8 @@
 from django.shortcuts import render
+from rest_framework.views import APIView
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +21,7 @@ from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 
 class RegisterView(generics.CreateAPIView):
@@ -53,6 +57,24 @@ class LoginView(generics.GenericAPIView):
             })
         return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)  
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -88,13 +110,17 @@ class SendRecoveryEmailView(generics.GenericAPIView):
             reset_link = request.build_absolute_uri(
                 reverse('reset-password', kwargs={'uidb64': uid, 'token': token})
             )
-            send_mail(
+            html_content = render_to_string('recovery_email.html', {'reset_link': reset_link})
+            
+            email_message = EmailMultiAlternatives(
                 'Recuperación de Contraseña',
-                f'Hola, para restablecer tu contraseña, haz clic en el siguiente enlace: {reset_link}',
+                'Para restablecer tu contraseña, haz clic en el enlace proporcionado.',  # Texto alternativo
                 'noreply@example.com',
-                [user.email],
-                fail_silently=False,
+                [user.email]
             )
+            email_message.attach_alternative(html_content, "text/html")
+            email_message.send()
+            
             return Response({'message': 'Código enviado a tu correo electrónico'}, status=status.HTTP_200_OK)
         
         except User.DoesNotExist:
@@ -104,6 +130,15 @@ def reset_password_view(request, uidb64, token):
     try:
         user_id = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(id=user_id)  
+        
+        token_status = user.verify_reset_token(token)
+        print(token_status)
+
+        if token_status == 'expired' or token_status == False:
+            return JsonResponse({'error': 'El enlace ha caducado. Por favor solicita uno nuevo.'}, status=400)
+        elif token_status == 'invalid':
+            return JsonResponse({'error': 'El enlace es inválido. Por favor verifica e intenta nuevamente.'}, status=400)
+        
 
         if not user.verify_reset_token(token):  
             return render(request, 'reset_password.html', {'error': 'Token incorrecto o expirado'})
@@ -123,7 +158,7 @@ class ResetPasswordView(generics.GenericAPIView):
         try:
             user = User.objects.get(id=user_id)
 
-            if not user.verify_reset_token(token):  # Implementa esta función para verificar el token
+            if not user.verify_reset_token(token):  
                 return Response({'error': 'Token incorrecto o expirado'}, status=status.HTTP_400_BAD_REQUEST)
 
             new_password = request.data.get('new_password')

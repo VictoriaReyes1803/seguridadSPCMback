@@ -192,27 +192,53 @@ class UpdatePDFView(generics.GenericAPIView):
             file_url = f"https://nyc3.digitaloceanspaces.com/clayenss/{settings.SPACES_BUCKET_NAME}/{file_name}"
             print(file_url)
             
-            
-            # API_TOKEN = settings.DIGITALOCEAN_API_TOKEN
-            # CDN_ENDPOINT_ID = settings.SPACES_REGION
-            # FILE_PATH = f'/{settings.SPACES_BUCKET_NAME}/{file_name}'
-            # headers = {
-            #     'Content-Type': 'application/json',
-            #     'Authorization': f'Bearer {API_TOKEN}'
-            # }
-            # data = {
-            #     'files': [FILE_PATH]
-            # }
-            # response = requests.delete(
-            #     f'https://api.digitalocean.com/v2/cdn/endpoints/{CDN_ENDPOINT_ID}/cache',
-            #     headers=headers,
-            #     json=data
-            # )
-            # print(response.status_code, response.json())
-
             return Response({'file_url': file_url}, status=status.HTTP_200_OK)
         
         except NoCredentialsError:
             return Response({'error': 'Credentials not available'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeletePDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, id_report , *args, **kwargs):
+        try:
+            file_name = request.data.get('pdf_name')
+            if not file_name:
+                return Response({'error': 'No PDF URL provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            session = boto3.session.Session()
+            client = session.client(
+                's3',
+                region_name=settings.SPACES_REGION,
+                endpoint_url=settings.SPACES_ENDPOINT_URL,
+                aws_access_key_id=settings.SPACES_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.SPACES_SECRET_ACCESS_KEY
+            )
+
+            try:
+                client.delete_object(Bucket=settings.SPACES_BUCKET_NAME, Key=file_name)
+                print(f"Archivo {file_name} eliminado de DigitalOcean Spaces")
+            except client.exceptions.NoSuchKey:
+                return Response({'error': 'Archivo PDF no encontrado en el almacenamiento'}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                reporte = Reporte.objects.get(id=id_report)  
+                reporte.delete()
+                print(f"Reporte asociado a {file_name} eliminado de la base de datos")
+            except Reporte.DoesNotExist:
+                return Response({'error': 'Reporte no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({'message': 'Archivo PDF y Reporte eliminados exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+
+        except NoCredentialsError:
+            return Response({'error': 'Credenciales no disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            error_message = e.response['Error']['Message']
+            print(f"ClientError: {error_code} - {error_message}")
+            return Response({'error': f'Error del cliente {error_code}: {error_message}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

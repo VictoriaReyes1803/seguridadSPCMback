@@ -50,7 +50,7 @@ class User(AbstractBaseUser):
     
     def generate_reset_token(self):
         """Genera un token JWT para restablecimiento de contraseña."""
-        expiration = timezone.now() + timedelta(minutes=30)  
+        expiration = timezone.now() + timedelta(minutes=60)  
         token = jwt.encode({
             'user_id': self.id,
             'exp': int(expiration.timestamp())
@@ -61,10 +61,12 @@ class User(AbstractBaseUser):
         """Verifica la validez del token JWT para restablecimiento de contraseña."""
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-            return payload['user_id'] == self.id  # Verifica que el token pertenece al usuario
-        except (jwt.ExpiredSignatureError, jwt.DecodeError, jwt.InvalidTokenError):
+            
+            return payload['user_id'] == self.id  
+        except jwt.ExpiredSignatureError:
             return False
-
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return False
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
 

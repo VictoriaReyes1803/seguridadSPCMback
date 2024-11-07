@@ -28,6 +28,9 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+    
+    def perform_create(self, serializer):
+        serializer.save(is_active=True)
 
 class LoginView(generics.GenericAPIView):
     
@@ -67,7 +70,10 @@ class UserProfileView(APIView):
         return Response(serializer.data)
     def put(self, request):
         user = request.user
-        serializer = UserSerializer(user, data=request.data, partial=True)  
+        if 'password' in request.data:
+            serializer = UserSerializer(user, data=request.data, partial=True)
+        else:
+            serializer = UserSerializer(user, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()

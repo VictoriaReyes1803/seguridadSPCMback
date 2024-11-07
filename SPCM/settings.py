@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-kj4maq(_q2s%9tq#cuq-c8*0fxd%!0u+d$-i*5gd%7absy2do8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost:4200', '127.0.0.1']
 
 
 # Application definition
@@ -195,3 +195,9 @@ EMAIL_USE_TLS = True                   # Habilitar TLS
 EMAIL_HOST_USER = 'clayens82@gmail.com' # Tu correo electrónico
 EMAIL_HOST_PASSWORD = 'lgfc mzle bnrw zocx'   # Contraseña del correo electrónico
 DEFAULT_FROM_EMAIL = 'clayens82@gmail.com'  # Dirección del remitente
+
+
+# STATIC_ROOT = '/web/spcm/SPCM_BACK/static/'
+# MEDIA_ROOT = '/web/spcm/SPCM_BACK/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = 'media/'

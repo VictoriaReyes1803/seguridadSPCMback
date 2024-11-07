@@ -8,11 +8,14 @@ from .models import User, Producto_maquina, Producto, Maquina, Reporte
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','email', 'nombre', 'username','no_empleado','apellido_paterno','apellido_materno', 'rol', 'password', 'is_active', 'is_staff']
+        fields = ['id','email', 'nombre', 'username','no_empleado','apellido_paterno','apellido_materno', 'rol', 'password', 'is_active', 'is_staff', 'profile_picture']
         extra_kwargs = {'password': {'write_only': True}}
 
     def update(self, instance, validated_data):
-        validated_data.pop('password', None)
+        password = validated_data.get('password', None)
+        if password:
+            instance.set_password(password)  
+            validated_data.pop('password')
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         

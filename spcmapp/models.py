@@ -40,6 +40,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     code = models.CharField(max_length=100, null=True, blank=True)
     reset_token = models.CharField(max_length=100, null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     objects = UserManager()
 
     USERNAME_FIELD = 'email'

@@ -1,8 +1,9 @@
 from django.urls import path
-
+from django.conf import settings
 from .views.views import Productos, ProductoMaquina, Maquinaget, ReporteView, ReporteDetailView, UploadPDFView, ListPDFView, AllReportsView, UpdatePDFView, DeletePDFView
 from .views.auth_views import RegisterView, LoginView, UserProfileView ,LogoutView, SendRecoveryEmailView, ResetPasswordView, reset_password_view
 from .views.user_views import user_views
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -35,4 +36,7 @@ urlpatterns = [
     path('send-email/', SendRecoveryEmailView.as_view(), name='send-recovery-email'),
     path('api/reset-password/<uidb64>/<token>/', reset_password_view, name='reset-password'),
     path('api/api/reset-password/<uidb64>/<token>/', ResetPasswordView.as_view(), name='api-reset-password'),
-]
+] 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -34,7 +34,7 @@ class User(AbstractBaseUser):
     no_empleado = models.CharField(max_length=10, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)
-    apellido_materno = models.CharField(max_length=100)
+    apellido_materno = models.CharField(max_length=100, null=True)
     rol = models.CharField(max_length=10, choices=roles)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

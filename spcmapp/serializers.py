@@ -34,7 +34,7 @@ class ProductoSerializer(serializers.ModelSerializer):
 class MaquinaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Maquina
-        fields = ['id', 'maquina', 'estado']
+        fields = ['id', 'maquina', 'estado', 'Formato']
         
         
 class ProductoMaquinaSerializer(serializers.ModelSerializer):
@@ -42,7 +42,8 @@ class ProductoMaquinaSerializer(serializers.ModelSerializer):
         model = Producto_maquina
         fields = ['id', 'Ruta', 'Descripcion_1', 'Categoria', 'Operación', 'Subcontratacion', 'Centro_trabajo_ppal', 'Destino_ope', 'Cod_maquina',
                   'Tipo_tpo_operacional', 'Tiempo_ajuste', 'Tpo_operacional', 'Cadencia',
-                  'Cadence_theo', 'Utillaje', 'Eficiencia']
+                  'Cadence_theo', 'Utillaje', 'Eficiencia',
+                  'Formato']
         
 class ReporteSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True) 

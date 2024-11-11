@@ -103,6 +103,7 @@ class Cliente(models.Model):
 class Maquina(models.Model):
     maquina = models.CharField(max_length=100)
     estado = models.BooleanField(default=True, null=True, blank=True)
+    Formato = models.CharField(max_length=100, null=True, blank=True)
     
     def __str__(self):
         return self.codigo
@@ -138,6 +139,7 @@ class Producto_maquina(models.Model):
     Cadence_theo = models.CharField(max_length=100)
     Utillaje = models.CharField(max_length=100)
     Eficiencia = models.CharField(max_length=100)
+    Formato = models.CharField(max_length=100, null=True, blank=True)
     
     
     def __str__(self):

@@ -79,7 +79,7 @@ class Reporte(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     producto_maquina = models.ForeignKey('Producto_maquina', on_delete=models.CASCADE)
-    
+    is_active = models.BooleanField(default=True, null=True, blank=True)    
 
     def __str__(self):
         return f"Reporte {self.id} de {self.user.email}"

@@ -224,14 +224,18 @@ class DeletePDFView(APIView):
             except client.exceptions.NoSuchKey:
                 return Response({'error': 'Archivo PDF no encontrado en el almacenamiento'}, status=status.HTTP_404_NOT_FOUND)
 
+            
             try:
                 reporte = Reporte.objects.get(id=id_report)  
-                reporte.delete()
-                print(f"Reporte asociado a {file_name} eliminado de la base de datos")
+                reporte.is_active = False
+                reporte.save()
+                # reporte.delete()
+                
+                print(f"Reporte asociado a {file_name} desactivado de la base de datos")
             except Reporte.DoesNotExist:
                 return Response({'error': 'Reporte no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response({'message': 'Archivo PDF y Reporte eliminados exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Archivo PDF eliminado y Reporte desactivado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
 
         except NoCredentialsError:
             return Response({'error': 'Credenciales no disponibles'}, status=status.HTTP_400_BAD_REQUEST)
